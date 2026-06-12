@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cifra e Nome · Quiz de Tradução</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ebano:#171109;
+    --madeira:#221a10;
+    --carta:#2a2014;
+    --borda:#3d3122;
+    --ambar:#e0a458;
+    --ambar-claro:#f3c98b;
+    --creme:#f0e6d2;
+    --creme-suave:#c9bda5;
+    --certo:#8fbf7f;
+    --erro:#d98873;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Outfit',system-ui,sans-serif;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #2b2113 0%, var(--ebano) 60%),
+      var(--ebano);
+    color:var(--creme);
+    display:flex;justify-content:center;
+    min-height:100%;
+    padding:18px 14px 32px;
+  }
+  .app{width:100%;max-width:430px;display:flex;flex-direction:column;gap:16px;position:relative}
+
+  /* ---------- tema claro ---------- */
+  body.claro{
+    --ebano:#f3ead6;
+    --madeira:#ece0c5;
+    --carta:#f7efdd;
+    --borda:#d9c9a4;
+    --ambar:#b97d2c;
+    --ambar-claro:#8a5a14;
+    --creme:#3a2d1a;
+    --creme-suave:#7d6c4d;
+    --certo:#3f7d2e;
+    --erro:#b04a31;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #fdf7e8 0%, #f1e6cd 60%),
+      #f1e6cd;
+  }
+  .tema-botao{
+    position:absolute;top:0;right:0;z-index:2;
+    width:42px;height:42px;border-radius:50%;
+    border:1px solid var(--borda);background:var(--madeira);
+    font-size:1.05rem;line-height:1;cursor:pointer;
+    transition:transform .08s;
+  }
+  .tema-botao:active{transform:scale(.92)}
+
+  header{text-align:center;padding-top:6px}
+  header h1{
+    font-family:'Fraunces',serif;font-weight:700;font-size:1.5rem;
+    color:var(--ambar-claro);letter-spacing:.01em;
+  }
+  header p{font-size:.82rem;color:var(--creme-suave);margin-top:2px}
+
+  /* ---------- direção ---------- */
+  .direcao{
+    background:var(--madeira);
+    border:1px solid var(--borda);
+    border-radius:14px;
+    padding:12px 14px 14px;
+  }
+  .direcao .titulo{
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--creme-suave);margin-bottom:10px;
+  }
+  .direcao .opcoes{display:flex;gap:8px}
+  .modo{
+    flex:1;min-height:46px;
+    font-family:inherit;font-size:.88rem;font-weight:500;
+    border:1px solid var(--borda);border-radius:11px;
+    background:transparent;color:var(--creme-suave);
+    cursor:pointer;transition:all .2s;
+  }
+  .modo.ativa{
+    border-color:var(--ambar);background:var(--ambar);
+    color:var(--ebano);font-weight:600;
+  }
+
+  /* ---------- pergunta ---------- */
+  .carta{
+    background:var(--carta);
+    border:1px solid var(--borda);
+    border-radius:16px;
+    padding:20px 18px 22px;
+    text-align:center;
+  }
+  .carta .contexto{
+    font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--creme-suave);min-height:1.1em;
+  }
+  .nota{
+    font-family:'Fraunces',serif;font-weight:700;
+    font-size:3.4rem;
+    height:1.25em;line-height:1.25;
+    color:var(--creme);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .nota .acidente{color:var(--ambar);font-size:.62em;vertical-align:.22em;margin-left:.04em}
+  .carta .instrucao{font-size:.85rem;color:var(--creme-suave)}
+
+  .feedback{
+    margin-top:10px;font-size:.95rem;min-height:1.4em;font-weight:500;
+  }
+  .feedback.ok{color:var(--certo)}
+  .feedback.nao{color:var(--erro)}
+
+  /* ---------- respostas ---------- */
+  .respostas{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:9px;
+  }
+  .opcao{
+    font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;
+    color:var(--creme);
+    background:var(--carta);
+    border:1px solid var(--borda);
+    border-radius:12px;
+    min-height:56px;
+    cursor:pointer;
+    transition:transform .08s, background .15s, border-color .15s;
+  }
+  .opcao .acidente{color:var(--ambar);font-size:.78em;vertical-align:.14em}
+  .opcao:active{transform:scale(.95)}
+  .opcao:disabled{cursor:default;opacity:.45}
+  .opcao.acertou{
+    background:rgba(143,191,127,.16);border-color:var(--certo);color:var(--certo);opacity:1;
+  }
+  .opcao.acertou .acidente{color:var(--certo)}
+  .opcao.errou{
+    background:rgba(217,136,115,.14);border-color:var(--erro);color:var(--erro);opacity:1;
+  }
+  .opcao.errou .acidente{color:var(--erro)}
+
+  /* ---------- rodapé ---------- */
+  .rodape{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .placar{font-size:.85rem;color:var(--creme-suave)}
+  .placar b{color:var(--ambar-claro);font-weight:600}
+  .proxima{
+    font-family:inherit;font-size:.95rem;font-weight:600;
+    background:var(--ambar);color:var(--ebano);
+    border:none;border-radius:12px;
+    padding:13px 22px;cursor:pointer;
+    transition:transform .08s, opacity .2s;
+    opacity:0;pointer-events:none;
+  }
+  .proxima.visivel{opacity:1;pointer-events:auto}
+  .proxima:active{transform:scale(.96)}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <button class="tema-botao" id="btnTema" aria-label="Alternar tema claro/escuro">&#x2600;&#xFE0F;</button>
+
+  <header>
+    <h1>Cifra e Nome</h1>
+    <p>Traduza a nota: cifra vira nome, nome vira cifra.</p>
+  </header>
+
+  <section class="direcao" aria-label="Direção da pergunta">
+    <div class="titulo">Direção</div>
+    <div class="opcoes">
+      <button class="modo" data-m="cn">C → Do</button>
+      <button class="modo" data-m="nc">Do → C</button>
+      <button class="modo ativa" data-m="misto">Misto</button>
+    </div>
+  </section>
+
+  <section class="carta">
+    <div class="contexto" id="contexto">&nbsp;</div>
+    <div class="nota" id="nota">&nbsp;</div>
+    <div class="instrucao" id="instrucao">Toque na tradução correta.</div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <section class="respostas" id="respostas" aria-label="Respostas"></section>
+
+  <div class="rodape">
+    <div class="placar" id="placar">Acertos <b>0</b>/0 · Sequência <b>0</b></div>
+    <button class="proxima" id="btnProxima">Próxima →</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // Para cada classe de altura: grafias possíveis como [cifra, nome sem acento].
+  // Naturais têm uma grafia; alteradas têm a versão sustenido e a bemol.
+  const NOTAS = {
+    0:[["C","Do"]],
+    1:[["C#","Do#"],["Db","Reb"]],
+    2:[["D","Re"]],
+    3:[["D#","Re#"],["Eb","Mib"]],
+    4:[["E","Mi"]],
+    5:[["F","Fa"]],
+    6:[["F#","Fa#"],["Gb","Solb"]],
+    7:[["G","Sol"]],
+    8:[["G#","Sol#"],["Ab","Lab"]],
+    9:[["A","La"]],
+    10:[["A#","La#"],["Bb","Sib"]],
+    11:[["B","Si"]]
+  };
+  // índice 0 = cifra, índice 1 = nome
+  const ROTULO = {0:"cifra", 1:"nome"};
+
+  let modo = "misto";          // "cn" (cifra->nome), "nc" (nome->cifra), "misto"
+  let perguntaAtual = null;    // {pc, familia, ladoPergunta, textoPergunta, textoResposta}
+  let respondida = false;
+  let ultimaPc = -1;
+  let acertos = 0, total = 0, sequencia = 0;
+
+  const $ = id => document.getElementById(id);
+  const elNota = $("nota"), elContexto = $("contexto"),
+        elFeedback = $("feedback"), elRespostas = $("respostas"),
+        elPlacar = $("placar"), btnProxima = $("btnProxima");
+  const modos = Array.from(document.querySelectorAll(".modo"));
+
+  // monta os 12 botões de resposta (rótulos e posições mudam a cada pergunta)
+  for(let i=0;i<12;i++){
+    const b = document.createElement("button");
+    b.className = "opcao";
+    b.disabled = true;
+    b.addEventListener("click", () => responder(+b.dataset.pc, b));
+    elRespostas.appendChild(b);
+  }
+  const botoes = Array.from(elRespostas.children);
+
+  // embaralhamento Fisher-Yates: cada permutação das 12 posições é equiprovável
+  function embaralhar(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function bonito(texto){
+    // troca # e b finais pelos glifos musicais
+    if(texto.endsWith("#")) return texto.slice(0,-1) + '<span class="acidente">\u266F</span>';
+    if(texto.length > 1 && texto.endsWith("b")) return texto.slice(0,-1) + '<span class="acidente">\u266D</span>';
+    return texto;
+  }
+
+  // grafia de uma classe de altura na notação pedida, seguindo a família de acidente
+  // lado: 0 = cifra, 1 = nome | familia: 0 = sustenidos, 1 = bemois
+  function grafia(pc, lado, familia){
+    const g = NOTAS[pc];
+    const escolha = g.length === 1 ? g[0] : g[familia];
+    return escolha[lado];
+  }
+
+  function novaPergunta(){
+    let pc;
+    do { pc = Math.floor(Math.random()*12); } while(pc === ultimaPc);
+    ultimaPc = pc;
+
+    // sorteia a família de acidente da pergunta (vale para a grade toda)
+    const familia = Math.floor(Math.random()*2);
+
+    // direção: lado em que a pergunta aparece
+    let ladoPergunta;
+    if(modo === "cn") ladoPergunta = 0;
+    else if(modo === "nc") ladoPergunta = 1;
+    else ladoPergunta = Math.floor(Math.random()*2);
+    const ladoResposta = 1 - ladoPergunta;
+
+    const textoPergunta = grafia(pc, ladoPergunta, familia);
+    const textoResposta = grafia(pc, ladoResposta, familia);
+    perguntaAtual = {pc, familia, ladoPergunta, textoPergunta, textoResposta};
+    respondida = false;
+
+    elContexto.textContent = ROTULO[ladoPergunta] + " \u2192 " + ROTULO[ladoResposta];
+    elNota.innerHTML = bonito(textoPergunta);
+    elFeedback.textContent = "";
+    elFeedback.className = "feedback";
+    btnProxima.classList.remove("visivel");
+
+    // reescreve a grade na notação da resposta, em ordem embaralhada
+    const ordem = embaralhar([0,1,2,3,4,5,6,7,8,9,10,11]);
+    botoes.forEach((b,j) => {
+      const pc = ordem[j];
+      b.dataset.pc = pc;
+      b.innerHTML = bonito(grafia(pc, ladoResposta, familia));
+      b.disabled = false;
+      b.classList.remove("acertou","errou");
+    });
+  }
+
+  function responder(pcEscolhida, botao){
+    if(respondida || !perguntaAtual) return;
+    respondida = true;
+    total++;
+
+    botoes.forEach(b => b.disabled = true);
+
+    if(pcEscolhida === perguntaAtual.pc){
+      acertos++; sequencia++;
+      botao.classList.add("acertou");
+      elFeedback.className = "feedback ok";
+      elFeedback.textContent = "\u2713 Isso! " + perguntaAtual.textoPergunta + " = " + perguntaAtual.textoResposta + ".";
+    } else {
+      sequencia = 0;
+      botao.classList.add("errou");
+      botoes.find(b => +b.dataset.pc === perguntaAtual.pc).classList.add("acertou");
+      elFeedback.className = "feedback nao";
+      elFeedback.textContent = "\u2717 Quase. " + perguntaAtual.textoPergunta + " = " + perguntaAtual.textoResposta + ".";
+    }
+
+    elPlacar.innerHTML = "Acertos <b>" + acertos + "</b>/" + total + " · Sequência <b>" + sequencia + "</b>";
+    btnProxima.classList.add("visivel");
+    btnProxima.focus({preventScroll:true});
+  }
+
+  modos.forEach(m => m.addEventListener("click", () => {
+    modo = m.dataset.m;
+    modos.forEach(x => x.classList.toggle("ativa", x === m));
+    novaPergunta();
+  }));
+
+  btnProxima.addEventListener("click", novaPergunta);
+
+  // ---------- tema claro/escuro ----------
+  const btnTema = $("btnTema");
+  function aplicarTema(t){
+    document.body.classList.toggle("claro", t === "claro");
+    btnTema.textContent = t === "claro" ? "\u{1F319}" : "\u2600\uFE0F";
+  }
+  let tema = "escuro";
+  try{ tema = localStorage.getItem("tema-quiz") || "escuro"; }catch(e){}
+  aplicarTema(tema);
+  btnTema.addEventListener("click", () => {
+    tema = (tema === "claro") ? "escuro" : "claro";
+    try{ localStorage.setItem("tema-quiz", tema); }catch(e){}
+    aplicarTema(tema);
+  });
+
+  novaPergunta();
+})();
+</script>
+</body>
+</html>

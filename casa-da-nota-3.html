@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Casa da Nota · Quiz do Braço do Violão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ebano:#171109;
+    --madeira:#221a10;
+    --carta:#2a2014;
+    --borda:#3d3122;
+    --ambar:#e0a458;
+    --ambar-claro:#f3c98b;
+    --creme:#f0e6d2;
+    --creme-suave:#c9bda5;
+    --nylon:#efe4c8;
+    --cobre:#c98a52;
+    --certo:#8fbf7f;
+    --erro:#d98873;
+    --trilho:rgba(61,49,34,.6);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Outfit',system-ui,sans-serif;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #2b2113 0%, var(--ebano) 60%),
+      var(--ebano);
+    color:var(--creme);
+    display:flex;justify-content:center;
+    min-height:100%;
+    padding:18px 14px 32px;
+  }
+  .app{width:100%;max-width:430px;display:flex;flex-direction:column;gap:16px;position:relative}
+
+  /* ---------- tema claro ---------- */
+  body.claro{
+    --ebano:#f3ead6;
+    --madeira:#ece0c5;
+    --carta:#f7efdd;
+    --borda:#d9c9a4;
+    --ambar:#b97d2c;
+    --ambar-claro:#8a5a14;
+    --creme:#3a2d1a;
+    --creme-suave:#7d6c4d;
+    --nylon:#b3a071;
+    --cobre:#a8642b;
+    --certo:#3f7d2e;
+    --erro:#b04a31;
+    --trilho:rgba(61,49,34,.18);
+    background:
+      radial-gradient(120% 80% at 50% -10%, #fdf7e8 0%, #f1e6cd 60%),
+      #f1e6cd;
+  }
+  .tema-botao{
+    position:absolute;top:0;right:0;z-index:2;
+    width:42px;height:42px;border-radius:50%;
+    border:1px solid var(--borda);background:var(--madeira);
+    font-size:1.05rem;line-height:1;cursor:pointer;
+    transition:transform .08s;
+  }
+  .tema-botao:active{transform:scale(.92)}
+
+  header{text-align:center;padding-top:6px}
+  header h1{
+    font-family:'Fraunces',serif;font-weight:700;font-size:1.5rem;
+    color:var(--ambar-claro);letter-spacing:.01em;
+  }
+  header p{font-size:.82rem;color:var(--creme-suave);margin-top:2px}
+
+  /* ---------- cordas ---------- */
+  .cordas{
+    background:var(--madeira);
+    border:1px solid var(--borda);
+    border-radius:14px;
+    padding:10px 0 8px;
+  }
+  .cordas .titulo{
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--creme-suave);padding:0 16px 6px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .chip-aleatoria{
+    font-family:inherit;font-size:.7rem;letter-spacing:.06em;
+    border:1px solid var(--borda);border-radius:999px;
+    background:transparent;color:var(--creme-suave);
+    padding:4px 12px;cursor:pointer;transition:all .2s;
+  }
+  .chip-aleatoria.ativa{
+    border-color:var(--ambar);color:var(--ebano);background:var(--ambar);font-weight:600;
+  }
+  .corda{
+    display:block;width:100%;min-height:50px;
+    padding:0 16px;border:none;background:transparent;
+    cursor:pointer;font-family:inherit;color:var(--creme-suave);
+    transition:background .15s;text-align:left;
+  }
+  .corda:active{background:rgba(224,164,88,.08)}
+  .corda .linha{
+    display:flex;align-items:center;gap:12px;
+    min-height:50px;width:100%;
+  }
+  .corda .rotulo{
+    font-size:.85rem;min-width:78px;text-align:left;white-space:nowrap;
+    line-height:1.2;
+  }
+  .corda .rotulo b{color:var(--creme);font-weight:600}
+  .corda .fio{
+    flex:1 1 auto;min-width:40px;border-radius:99px;position:relative;
+    transition:box-shadow .25s, opacity .25s;
+    opacity:.55;
+  }
+  /* primas em nylon, bordões em cobre */
+  .corda[data-n="1"] .fio{height:2px;background:var(--nylon)}
+  .corda[data-n="2"] .fio{height:2.5px;background:var(--nylon)}
+  .corda[data-n="3"] .fio{height:3px;background:var(--nylon)}
+  .corda[data-n="4"] .fio{height:3.5px;background:repeating-linear-gradient(90deg,var(--cobre) 0 3px,#a96f3e 3px 6px)}
+  .corda[data-n="5"] .fio{height:4.5px;background:repeating-linear-gradient(90deg,var(--cobre) 0 3px,#a96f3e 3px 6px)}
+  .corda[data-n="6"] .fio{height:5.5px;background:repeating-linear-gradient(90deg,var(--cobre) 0 3px,#a96f3e 3px 6px)}
+  .corda.ativa{color:var(--creme)}
+  .corda.ativa .rotulo b{color:var(--ambar-claro)}
+  .corda.ativa .fio{
+    opacity:1;
+    box-shadow:0 0 10px 1px rgba(224,164,88,.55);
+  }
+  @keyframes vibrar{
+    0%,100%{transform:translateY(0)}
+    20%{transform:translateY(-2.5px)}
+    40%{transform:translateY(2px)}
+    60%{transform:translateY(-1.5px)}
+    80%{transform:translateY(1px)}
+  }
+  .corda.vibra .fio{animation:vibrar .45s ease-out}
+
+  .limite{padding:12px 16px 8px;border-top:1px solid var(--borda);margin-top:8px}
+  .limite-rotulo{font-size:.78rem;color:var(--creme-suave);display:block;margin-bottom:10px;letter-spacing:.04em}
+  .limite-rotulo b{color:var(--ambar-claro);font-size:.95rem}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;
+    width:100%;height:4px;border-radius:99px;
+    background:var(--borda);outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--ambar);border:3px solid var(--ebano);
+    box-shadow:0 0 8px rgba(224,164,88,.5);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:24px;height:24px;border-radius:50%;
+    background:var(--ambar);border:3px solid var(--ebano);cursor:pointer;
+  }
+
+  .casa.fora{opacity:.15 !important}
+
+  .limite-rotulo.espaco{margin-top:16px}
+  .tempo-barra{
+    height:4px;border-radius:99px;margin-bottom:14px;
+    background:var(--trilho);overflow:hidden;
+    visibility:hidden;
+  }
+  .tempo-barra.ativa{visibility:visible}
+  .tempo-fluxo{
+    height:100%;width:100%;border-radius:99px;
+    background:linear-gradient(90deg, var(--erro), var(--ambar) 35%);
+  }
+
+  /* ---------- pergunta ---------- */
+  .carta{
+    background:var(--carta);
+    border:1px solid var(--borda);
+    border-radius:16px;
+    padding:20px 18px 22px;
+    text-align:center;
+    position:relative;
+  }
+  .carta .contexto{
+    font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--creme-suave);min-height:1.1em;
+  }
+  .nota{
+    font-family:'Fraunces',serif;font-weight:700;
+    font-size:clamp(4.2rem, 24vw, 5.6rem);
+    line-height:1.05;color:var(--creme);
+    min-height:1.05em;
+    transition:color .2s;
+  }
+  .nota .acidente{color:var(--ambar);font-size:.62em;vertical-align:.22em;margin-left:.04em}
+  .carta .instrucao{font-size:.85rem;color:var(--creme-suave)}
+
+  .feedback{
+    margin-top:10px;font-size:.95rem;min-height:1.4em;font-weight:500;
+  }
+  .feedback.ok{color:var(--certo)}
+  .feedback.nao{color:var(--erro)}
+
+  /* ---------- respostas ---------- */
+  .respostas{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:9px;
+  }
+  .casa{
+    position:relative;
+    font-family:'Outfit',sans-serif;font-size:1.25rem;font-weight:600;
+    color:var(--creme);
+    background:var(--carta);
+    border:1px solid var(--borda);
+    border-radius:12px;
+    min-height:56px;
+    cursor:pointer;
+    transition:transform .08s, background .15s, border-color .15s;
+  }
+  .casa:active{transform:scale(.95)}
+  .casa .pestana{
+    display:block;font-size:.58rem;font-weight:400;color:var(--creme-suave);
+    margin-top:-2px;letter-spacing:.05em;
+  }
+  /* marcações de bolinha (5, 7, 9), como no braço */
+  .casa[data-f="5"]::after,.casa[data-f="7"]::after,.casa[data-f="9"]::after{
+    content:"";position:absolute;left:50%;bottom:6px;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;
+    background:var(--creme-suave);opacity:.5;
+  }
+  .casa:disabled{cursor:default;opacity:.45}
+  .casa.acertou{
+    background:rgba(143,191,127,.16);border-color:var(--certo);color:var(--certo);opacity:1;
+  }
+  .casa.errou{
+    background:rgba(217,136,115,.14);border-color:var(--erro);color:var(--erro);opacity:1;
+  }
+
+  /* ---------- rodapé ---------- */
+  .rodape{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .placar{font-size:.85rem;color:var(--creme-suave)}
+  .placar b{color:var(--ambar-claro);font-weight:600}
+  .proxima{
+    font-family:inherit;font-size:.95rem;font-weight:600;
+    background:var(--ambar);color:var(--ebano);
+    border:none;border-radius:12px;
+    padding:13px 22px;cursor:pointer;
+    transition:transform .08s, opacity .2s;
+    opacity:0;pointer-events:none;
+  }
+  .proxima.visivel{opacity:1;pointer-events:auto}
+  .proxima:active{transform:scale(.96)}
+
+  @media (prefers-reduced-motion: reduce){
+    .corda.vibra .fio{animation:none}
+    *:not(.tempo-fluxo){transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <button class="tema-botao" id="btnTema" aria-label="Alternar tema claro/escuro">&#x2600;&#xFE0F;</button>
+
+  <header>
+    <h1>Casa da Nota</h1>
+    <p>Onde essa nota mora no braço do violão?</p>
+  </header>
+
+  <section class="cordas" aria-label="Escolha da corda">
+    <div class="titulo">
+      <span>Corda ativa</span>
+      <button class="chip-aleatoria" id="btnAleatoria">🔀 aleatória</button>
+    </div>
+    <button class="corda" data-n="1"><span class="linha"><span class="rotulo"><b>1ª</b> · Mi (E)</span><span class="fio"></span></span></button>
+    <button class="corda" data-n="2"><span class="linha"><span class="rotulo"><b>2ª</b> · Si (B)</span><span class="fio"></span></span></button>
+    <button class="corda" data-n="3"><span class="linha"><span class="rotulo"><b>3ª</b> · Sol (G)</span><span class="fio"></span></span></button>
+    <button class="corda" data-n="4"><span class="linha"><span class="rotulo"><b>4ª</b> · Ré (D)</span><span class="fio"></span></span></button>
+    <button class="corda" data-n="5"><span class="linha"><span class="rotulo"><b>5ª</b> · Lá (A)</span><span class="fio"></span></span></button>
+    <button class="corda" data-n="6"><span class="linha"><span class="rotulo"><b>6ª</b> · Mi (E)</span><span class="fio"></span></span></button>
+    <div class="limite">
+      <span class="limite-rotulo">Estudar até a casa <b id="limiteValor">11</b></span>
+      <input type="range" id="limiteRange" min="1" max="11" step="1" value="11">
+      <span class="limite-rotulo espaco">Tempo por resposta <b id="tempoValor">sem limite</b></span>
+      <input type="range" id="tempoRange" min="0" max="15" step="1" value="0">
+    </div>
+  </section>
+
+  <section class="carta">
+    <div class="tempo-barra" id="tempoBarra"><div class="tempo-fluxo" id="tempoFluxo"></div></div>
+    <div class="contexto" id="contexto">escolha uma corda para começar</div>
+    <div class="nota" id="nota">&nbsp;</div>
+    <div class="instrucao" id="instrucao">A resposta é a casa (0 a 11) onde a nota se encontra.</div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <section class="respostas" id="respostas" aria-label="Respostas"></section>
+
+  <div class="rodape">
+    <div class="placar" id="placar">Acertos <b>0</b>/0 · Sequência <b>0</b></div>
+    <button class="proxima" id="btnProxima">Próxima →</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // pitch class das cordas soltas (C=0): 1ª E, 2ª B, 3ª G, 4ª D, 5ª A, 6ª E
+  const SOLTAS = {1:4, 2:11, 3:7, 4:2, 5:9, 6:4};
+  const NOMES_CORDA = {1:"Mi (E)",2:"Si (B)",3:"Sol (G)",4:"Ré (D)",5:"Lá (A)",6:"Mi (E)"};
+
+  // grafias possíveis por pitch class: [cifra, nome em português]
+  const NOTAS = {
+    0:[["C","Dó"]],
+    1:[["C#","Dó sustenido"],["Db","Ré bemol"]],
+    2:[["D","Ré"]],
+    3:[["D#","Ré sustenido"],["Eb","Mi bemol"]],
+    4:[["E","Mi"]],
+    5:[["F","Fá"]],
+    6:[["F#","Fá sustenido"],["Gb","Sol bemol"]],
+    7:[["G","Sol"]],
+    8:[["G#","Sol sustenido"],["Ab","Lá bemol"]],
+    9:[["A","Lá"]],
+    10:[["A#","Lá sustenido"],["Bb","Si bemol"]],
+    11:[["B","Si"]]
+  };
+
+  let cordaAtiva = null;
+  let modoAleatorio = false;
+  let limite = 11;
+  let tempoLimite = 0;        // segundos por resposta; 0 = sem limite
+  let tempoTimeout = null;
+  let perguntaAtual = null;   // {pc, cifra, nomePt, casa}
+  let respondida = false;
+  let ultimaPc = -1;
+  let acertos = 0, total = 0, sequencia = 0;
+
+  const $ = id => document.getElementById(id);
+  const elNota = $("nota"), elContexto = $("contexto"), elInstrucao = $("instrucao"),
+        elFeedback = $("feedback"), elRespostas = $("respostas"),
+        elPlacar = $("placar"), btnProxima = $("btnProxima"), btnAleatoria = $("btnAleatoria"),
+        elTempoBarra = $("tempoBarra"), elTempoFluxo = $("tempoFluxo");
+  const cordas = Array.from(document.querySelectorAll(".corda"));
+
+  // monta os 12 botões de casa
+  for(let f=0; f<12; f++){
+    const b = document.createElement("button");
+    b.className = "casa";
+    b.dataset.f = f;
+    b.innerHTML = f === 0 ? '0<span class="pestana">solta</span>' : f;
+    b.disabled = true;
+    b.addEventListener("click", () => responder(f, b));
+    elRespostas.appendChild(b);
+  }
+  const botoesCasa = Array.from(elRespostas.children);
+
+  function cifraHTML(cifra){
+    if(cifra.length === 1) return cifra;
+    const ac = cifra[1] === "#" ? "♯" : "♭";
+    return cifra[0] + '<span class="acidente">' + ac + '</span>';
+  }
+
+  function ativarCorda(n, marcar = true){
+    cordaAtiva = n;
+    cordas.forEach(c => c.classList.toggle("ativa", +c.dataset.n === n));
+    if(marcar){
+      modoAleatorio = false;
+      btnAleatoria.classList.remove("ativa");
+    }
+    novaPergunta();
+  }
+
+  function novaPergunta(){
+    if(modoAleatorio){
+      const n = 1 + Math.floor(Math.random()*6);
+      cordaAtiva = n;
+      cordas.forEach(c => c.classList.toggle("ativa", +c.dataset.n === n));
+    }
+    if(cordaAtiva === null) return;
+
+    // sorteia uma CASA dentro do limite e deriva a nota dela
+    let f, pc;
+    do {
+      f = Math.floor(Math.random()*(limite+1));
+      pc = (SOLTAS[cordaAtiva] + f) % 12;
+    } while(pc === ultimaPc && limite > 0);
+    ultimaPc = pc;
+
+    const grafias = NOTAS[pc];
+    const [cifra, nomePt] = grafias[Math.floor(Math.random()*grafias.length)];
+    const casa = f;
+    perguntaAtual = {pc, cifra, nomePt, casa};
+    respondida = false;
+
+    elContexto.textContent = "corda " + cordaAtiva + " · " + NOMES_CORDA[cordaAtiva];
+    elNota.innerHTML = cifraHTML(cifra);
+    elInstrucao.textContent = "Em qual casa (0 a " + limite + ") essa nota está?";
+    elFeedback.textContent = "";
+    elFeedback.className = "feedback";
+    btnProxima.classList.remove("visivel");
+
+    botoesCasa.forEach((b,i) => {
+      const dentro = i <= limite;
+      b.disabled = !dentro;
+      b.classList.toggle("fora", !dentro);
+      b.classList.remove("acertou","errou");
+    });
+
+    iniciarTempo();
+  }
+
+  function iniciarTempo(){
+    clearTimeout(tempoTimeout);
+    elTempoFluxo.style.transition = "none";
+    elTempoFluxo.style.width = "100%";
+    if(tempoLimite > 0){
+      elTempoBarra.classList.add("ativa");
+      void elTempoFluxo.offsetWidth; // força o navegador a aplicar o 100% antes de animar
+      elTempoFluxo.style.transition = "width " + tempoLimite + "s linear";
+      elTempoFluxo.style.width = "0%";
+      tempoTimeout = setTimeout(tempoEsgotado, tempoLimite * 1000);
+    } else {
+      elTempoBarra.classList.remove("ativa");
+    }
+  }
+
+  function pararTempo(){
+    clearTimeout(tempoTimeout);
+    const w = getComputedStyle(elTempoFluxo).width;
+    elTempoFluxo.style.transition = "none";
+    elTempoFluxo.style.width = w; // congela a barra onde estava
+  }
+
+  function tempoEsgotado(){
+    if(respondida || !perguntaAtual) return;
+    respondida = true;
+    total++;
+    sequencia = 0;
+
+    botoesCasa.forEach(b => b.disabled = true);
+    botoesCasa[perguntaAtual.casa].classList.add("acertou");
+    elFeedback.className = "feedback nao";
+    elFeedback.textContent = "\u23F1 Tempo! " + perguntaAtual.cifra + " (" + perguntaAtual.nomePt + ") fica na casa " + perguntaAtual.casa + ".";
+
+    elPlacar.innerHTML = "Acertos <b>" + acertos + "</b>/" + total + " · Sequência <b>" + sequencia + "</b>";
+    btnProxima.classList.add("visivel");
+    btnProxima.focus({preventScroll:true});
+  }
+
+  function responder(f, botao){
+    if(respondida || !perguntaAtual) return;
+    respondida = true;
+    total++;
+    pararTempo();
+
+    const certa = perguntaAtual.casa;
+    botoesCasa.forEach(b => b.disabled = true);
+
+    if(f === certa){
+      acertos++; sequencia++;
+      botao.classList.add("acertou");
+      elFeedback.className = "feedback ok";
+      elFeedback.textContent = "✓ Isso! " + perguntaAtual.cifra + " (" + perguntaAtual.nomePt + ") = casa " + certa + ".";
+      const c = cordas.find(x => +x.dataset.n === cordaAtiva);
+      if(c){ c.classList.remove("vibra"); void c.offsetWidth; c.classList.add("vibra"); }
+    } else {
+      sequencia = 0;
+      botao.classList.add("errou");
+      botoesCasa[certa].classList.add("acertou");
+      elFeedback.className = "feedback nao";
+      elFeedback.textContent = "✗ Quase. " + perguntaAtual.cifra + " (" + perguntaAtual.nomePt + ") fica na casa " + certa + ".";
+    }
+
+    elPlacar.innerHTML = "Acertos <b>" + acertos + "</b>/" + total + " · Sequência <b>" + sequencia + "</b>";
+    btnProxima.classList.add("visivel");
+    btnProxima.focus({preventScroll:true});
+  }
+
+  cordas.forEach(c => c.addEventListener("click", () => ativarCorda(+c.dataset.n)));
+
+  const limiteRange = $("limiteRange"), limiteValor = $("limiteValor");
+  limiteRange.addEventListener("input", () => {
+    limite = +limiteRange.value;
+    limiteValor.textContent = limite;
+  });
+  limiteRange.addEventListener("change", () => {
+    if(cordaAtiva !== null || modoAleatorio) novaPergunta();
+  });
+
+  const tempoRange = $("tempoRange"), tempoValor = $("tempoValor");
+  tempoRange.addEventListener("input", () => {
+    tempoLimite = +tempoRange.value;
+    tempoValor.textContent = tempoLimite === 0 ? "sem limite" : tempoLimite + "s";
+  });
+  tempoRange.addEventListener("change", () => {
+    if(cordaAtiva !== null || modoAleatorio) novaPergunta();
+  });
+
+  btnAleatoria.addEventListener("click", () => {
+    modoAleatorio = !modoAleatorio;
+    btnAleatoria.classList.toggle("ativa", modoAleatorio);
+    if(modoAleatorio) novaPergunta();
+  });
+
+  btnProxima.addEventListener("click", novaPergunta);
+
+  // ---------- tema claro/escuro ----------
+  const btnTema = $("btnTema");
+  function aplicarTema(t){
+    document.body.classList.toggle("claro", t === "claro");
+    btnTema.textContent = t === "claro" ? "\u{1F319}" : "\u2600\uFE0F";
+  }
+  let tema = "escuro";
+  try{ tema = localStorage.getItem("tema-quiz") || "escuro"; }catch(e){}
+  aplicarTema(tema);
+  btnTema.addEventListener("click", () => {
+    tema = (tema === "claro") ? "escuro" : "claro";
+    try{ localStorage.setItem("tema-quiz", tema); }catch(e){}
+    aplicarTema(tema);
+  });
+})();
+</script>
+</body>
+</html>
