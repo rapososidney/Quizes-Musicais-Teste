@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
 <title>Afinador de Precisão · Violão</title>
+  <meta name="theme-color" content="#17100a">
+  <link rel="manifest" href="afinador.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root{
     --amber:#f0b054;
@@ -740,6 +743,13 @@ document.querySelectorAll('.calRow button').forEach(btn=>{
 /* ---------- primeiro desenho ---------- */
 window.addEventListener('resize', ()=>{ drawGauge(false,false); drawFine(false); });
 drawGauge(false,false); drawFine(false);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
