@@ -3,7 +3,7 @@
    offline. Qualquer outra página do repositório — seus quizzes — continua
    indo pela rede normalmente, sem interferência nenhuma. */
 
-const CACHE = 'afinador-v3';
+const CACHE = 'afinador-v4';
 
 const PAGES = [
   'afinador-precisao-violao.html',   // completa: harmônico + calibração
