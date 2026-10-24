@@ -4,7 +4,7 @@
   "description": "Afinador de violão de alta precisão, com modo harmônico da 12ª casa e calibração de inarmonicidade.",
   "lang": "pt-BR",
   "start_url": "afinador-precisao-violao.html",
-  "scope": "./",
+  "scope": "./afinador-precisao",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#17100a",

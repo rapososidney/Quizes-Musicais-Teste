@@ -4,7 +4,7 @@
   "description": "Afinador de violão — afinação padrão E A D G B E.",
   "lang": "pt-BR",
   "start_url": "afinador-simples.html",
-  "scope": "./",
+  "scope": "./afinador-simples",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#17100a",
